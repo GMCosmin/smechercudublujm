@@ -200,7 +200,9 @@ export default function CoursesPage() {
   const handleUnlockCourse = (course: Course) => {
     if (tokenData.tokens >= course.tokensRequired) {
       if (spendTokens(course.tokensRequired)) {
-        setUnlockedCourses(new Set([...unlockedCourses, course.id]))
+        const newUnlocked = new Set(unlockedCourses)
+        newUnlocked.add(course.id)
+        setUnlockedCourses(newUnlocked)
         refreshTokens()
         setSelectedCourse({ ...course, unlocked: true })
       }

@@ -1,0 +1,12 @@
+Failed to compile.
+./app/courses/page.tsx:203:40
+Type error: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+  201 |     if (tokenData.tokens >= course.tokensRequired) {
+  202 |       if (spendTokens(course.tokensRequired)) {
+> 203 |         setUnlockedCourses(new Set([...unlockedCourses, course.id]))
+      |                                        ^
+  204 |         refreshTokens()
+  205 |         setSelectedCourse({ ...course, unlocked: true })
+  206 |       }
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1
