@@ -45,8 +45,8 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
       className={`
         flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border
         ${bgColors[toast.type]}
-        animate-in slide-in-from-right fade-in
         min-w-[300px] max-w-md
+        transition-all duration-300 ease-in-out
       `}
     >
       {icons[toast.type]}

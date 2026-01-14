@@ -447,8 +447,10 @@ export default function CoursesPage() {
 
   // Load unlocked courses from localStorage on mount
   useEffect(() => {
-    const saved = getUnlockedCourses()
-    setUnlockedCourses(saved)
+    if (typeof window !== 'undefined') {
+      const saved = getUnlockedCourses()
+      setUnlockedCourses(saved)
+    }
   }, [])
 
   const handleUnlockCourse = (course: Course) => {
