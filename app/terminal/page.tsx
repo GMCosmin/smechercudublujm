@@ -10,6 +10,14 @@ interface Command {
   output: string
 }
 
+const sampleFiles: Record<string, string> = {
+  'readme.txt': 'Welcome to LinuxToken.com!\nThis is a sample file.\nLearn Linux commands here.',
+  'notes.md': '# Linux Notes\n\n- Linux is open-source\n- It uses a hierarchical file system\n- Commands are case-sensitive',
+  'data.txt': 'apple\nbanana\ncherry\napple\ndate\nbanana',
+  'numbers.txt': '3\n1\n4\n1\n5\n9\n2\n6',
+  'log.txt': '2024-01-01 INFO: System started\n2024-01-01 ERROR: Connection failed\n2024-01-02 INFO: User logged in\n2024-01-02 WARN: High memory usage',
+}
+
 const availableCommands: Record<string, (args: string[]) => string> = {
   help: () => `Available commands:
   help          - Show this help message
@@ -22,9 +30,20 @@ const availableCommands: Record<string, (args: string[]) => string> = {
   cat [file]    - Display file contents
   mkdir [name]  - Create directory
   cd [dir]      - Change directory
-  history       - Show command history`,
+  history       - Show command history
+  grep [pattern] [file] - Search for pattern in file
+  find [dir] -name [pattern] - Find files matching pattern
+  sort [file]   - Sort lines in file
+  uniq [file]   - Remove duplicate lines
+  wc [file]     - Count lines, words, characters
+  head [file]   - Show first 10 lines
+  tail [file]   - Show last 10 lines
+  ps            - List processes
+  df            - Show disk space usage
+  free          - Show memory usage`,
 
-  ls: () => `bin    dev    etc    home   lib    media  opt    root   sbin   sys    tmp    usr    var`,
+  ls: () => `bin    dev    etc    home   lib    media  opt    root   sbin   sys    tmp    usr    var
+Documents  Downloads  readme.txt  notes.md  data.txt  numbers.txt  log.txt`,
 
   pwd: () => `/home/user`,
 
@@ -36,11 +55,7 @@ const availableCommands: Record<string, (args: string[]) => string> = {
 
   cat: (args) => {
     if (args.length === 0) return 'Usage: cat [filename]'
-    const files: Record<string, string> = {
-      'readme.txt': 'Welcome to LinuxToken.com!\nThis is a sample file.\nLearn Linux commands here.',
-      'notes.md': '# Linux Notes\n\n- Linux is open-source\n- It uses a hierarchical file system\n- Commands are case-sensitive',
-    }
-    return files[args[0]] || `cat: ${args[0]}: No such file or directory`
+    return sampleFiles[args[0]] || `cat: ${args[0]}: No such file or directory`
   },
 
   mkdir: (args) => {
@@ -52,6 +67,80 @@ const availableCommands: Record<string, (args: string[]) => string> = {
     if (args.length === 0) return 'Usage: cd [directory]'
     return `Changed directory to '${args[0]}'`
   },
+
+  grep: (args) => {
+    if (args.length < 2) return 'Usage: grep [pattern] [file]'
+    const [pattern, file] = args
+    const content = sampleFiles[file]
+    if (!content) return `grep: ${file}: No such file or directory`
+    const lines = content.split('\n')
+    const matches = lines.filter(line => line.toLowerCase().includes(pattern.toLowerCase()))
+    return matches.length > 0 ? matches.join('\n') : `(no matches found)`
+  },
+
+  find: (args) => {
+    if (args.length < 3 || args[0] !== '.' || args[1] !== '-name') {
+      return 'Usage: find . -name [pattern]\nExample: find . -name "*.txt"'
+    }
+    const pattern = args[2].replace(/\*/g, '.*')
+    const regex = new RegExp(pattern)
+    const files = Object.keys(sampleFiles).filter(f => regex.test(f))
+    return files.length > 0 ? files.join('\n') : `(no files found)`
+  },
+
+  sort: (args) => {
+    if (args.length === 0) return 'Usage: sort [file]'
+    const content = sampleFiles[args[0]]
+    if (!content) return `sort: ${args[0]}: No such file or directory`
+    return content.split('\n').sort().join('\n')
+  },
+
+  uniq: (args) => {
+    if (args.length === 0) return 'Usage: uniq [file]'
+    const content = sampleFiles[args[0]]
+    if (!content) return `uniq: ${args[0]}: No such file or directory`
+    const lines = content.split('\n')
+    const unique = Array.from(new Set(lines))
+    return unique.join('\n')
+  },
+
+  wc: (args) => {
+    if (args.length === 0) return 'Usage: wc [file]'
+    const content = sampleFiles[args[0]]
+    if (!content) return `wc: ${args[0]}: No such file or directory`
+    const lines = content.split('\n')
+    const words = content.split(/\s+/).filter(w => w.length > 0)
+    const chars = content.length
+    return `${lines.length} ${words.length} ${chars} ${args[0]}`
+  },
+
+  head: (args) => {
+    if (args.length === 0) return 'Usage: head [file]'
+    const content = sampleFiles[args[0]]
+    if (!content) return `head: ${args[0]}: No such file or directory`
+    return content.split('\n').slice(0, 10).join('\n')
+  },
+
+  tail: (args) => {
+    if (args.length === 0) return 'Usage: tail [file]'
+    const content = sampleFiles[args[0]]
+    if (!content) return `tail: ${args[0]}: No such file or directory`
+    return content.split('\n').slice(-10).join('\n')
+  },
+
+  ps: () => `  PID TTY          TIME CMD
+  1234 pts/0    00:00:01 bash
+  5678 pts/0    00:00:02 node
+  9012 pts/0    00:00:00 ps`,
+
+  df: () => `Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        20G   8G   11G  42% /
+/dev/sda2       100G  45G   50G  47% /home
+tmpfs           2.0G     0  2.0G   0% /dev/shm`,
+
+  free: () => `              total        used        free      shared  buff/cache   available
+Mem:        8192000     2048000     3072000      512000     3072000     5120000
+Swap:       2097152           0     2097152`,
 }
 
 export default function TerminalPage() {

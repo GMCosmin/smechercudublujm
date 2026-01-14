@@ -1,6 +1,7 @@
 // Token System: Earn 1 token per minute spent on the site
 const TOKEN_RATE = 1; // tokens per minute
 const STORAGE_KEY = 'linuxtoken_data';
+const UNLOCKED_COURSES_KEY = 'linuxtoken_unlocked_courses';
 
 export interface TokenData {
   tokens: number;
@@ -81,4 +82,34 @@ export function getCurrentTokens(): number {
 
 export function getTotalMinutes(): number {
   return updateTokens().totalMinutes;
+}
+
+// Unlocked Courses Management
+export function getUnlockedCourses(): Set<string> {
+  if (typeof window === 'undefined') {
+    return new Set();
+  }
+
+  const stored = localStorage.getItem(UNLOCKED_COURSES_KEY);
+  if (stored) {
+    try {
+      const courses = JSON.parse(stored);
+      return new Set(Array.isArray(courses) ? courses : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  return new Set();
+}
+
+export function saveUnlockedCourses(courses: Set<string>): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(UNLOCKED_COURSES_KEY, JSON.stringify(Array.from(courses)));
+}
+
+export function addUnlockedCourse(courseId: string): void {
+  const courses = getUnlockedCourses();
+  courses.add(courseId);
+  saveUnlockedCourses(courses);
 }
