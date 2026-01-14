@@ -9,6 +9,9 @@ import { Lock, Unlock, CheckCircle, Tag, Filter } from 'lucide-react'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import { useToast, ToastContainer } from '@/components/Toast'
 
+// Prevent static generation - this page uses client-side only features
+export const dynamic = 'force-dynamic'
+
 interface Course {
   id: string
   title: string
@@ -436,14 +439,15 @@ sudo snap refresh
   },
 ]
 
-const categories = ['All', ...Array.from(new Set(courses.map(c => c.category)))]
-
 export default function CoursesPage() {
   const { tokenData, refreshTokens } = useTokens()
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [unlockedCourses, setUnlockedCourses] = useState<Set<string>>(new Set())
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const { toasts, showToast, removeToast } = useToast()
+
+  // Compute categories inside component to avoid SSR issues
+  const categories = ['All', ...Array.from(new Set(courses.map(c => c.category)))]
 
   // Load unlocked courses from localStorage on mount
   useEffect(() => {
